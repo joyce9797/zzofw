@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 媒體查詢工具 -->
+<head>
+    <title>《 星辰之路》——性格測驗視覺小說</title>
+    <script>
+    // 禁止右鍵（防止圖片被另存）
+        document.addEventListener('contextmenu', event => event.preventDefault());
+
+                   // 載入畫面
+        // 1. 確保資源路徑正確 (檢查你的資料夾名稱)
+        // 要先載完的東西
+const criticalAssets = [
+    '/pct/星辰.PNG', 
+    
+]; 
+const heavyAssets = []; // 暫時先空著
+
+let loadedCount = 0;
+const totalCritical = criticalAssets.length;
+
+function preloadImages(array, callback) {
+    if (array.length === 0) return callback(); // 如果沒東西就直接結束
+
+    array.forEach(src => {
+        const img = new Image();
+        img.src = src;
+        
+        // 成功載入
+        img.onload = () => {
+            loadedCount++;
+            let percent = Math.floor((loadedCount / totalCritical) * 60);
+            updateUI(percent);
+            if (loadedCount === totalCritical) callback();
+        };
+
+        // 失敗處理 (預防圖片路徑寫錯卡死)
+        img.onerror = () => {
+            console.error("圖片載入失敗:", src);
+            loadedCount++; // 即使失敗也算進去，否則進度條會卡死
+            if (loadedCount === totalCritical) callback();
+        };
+    });
+}
+
+function updateUI(p) {
+    const bar = document.getElementById('progress-bar');
+    const text = document.getElementById('loading-percent');
+    if (bar) bar.style.width = p + "%";
+    if (text) text.innerText = p + "%";
+}
+
+// 定義缺少的函式，避免報錯
+function enterGameAnimation() {
+    console.log("開始進入遊戲動畫");
+    // 讓 Loading 畫面消失
+    document.getElementById('loading-screen').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+    }, 1000);
+}
+
+function backgroundLoad(assets) {
+    console.log("後台載入中...");
+}
+
+// 執行
+preloadImages(criticalAssets, () => {
+    enterGameAnimation();
+    backgroundLoad(heavyAssets);
+});
+// 漢堡選單
+function toggleMenu() {
+    const menu = document.getElementById("overlay-menu");
+    // 如果寬度是 0 就展開，否則就縮回
+    if (menu.style.width === "100%") {
+        menu.style.width = "0%";
+    } else {
+        menu.style.width = "100%";
+    }
+}
+// 偵測角色介紹區塊是否進入畫面
+// 1. 建立監視器
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('show');
+            // 如果只需要跑一次動畫，觸發後就停止監視該元素
+            observer.unobserve(entry.target); 
+        }
+    });
+}, {
+    threshold: 0.15 // 稍微露出一點點就觸發
+});
+
+// 2. 啟動監視 (確保在頁面載入後執行)
+document.addEventListener('DOMContentLoaded', () => {
+    // 這裡的選擇器要跟 CSS 對應
+    const elementsToWatch = document.querySelectorAll('.character img, .intro-title, .intro');
+    
+    elementsToWatch.forEach((el) => {
+        observer.observe(el);
+    });
+});
+    </script>
+    <style>
+/* 左上角漢堡按鈕 */
+.menu-toggle {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 2000; /* 確保在最上層 */
+    cursor: pointer;
+    background: rgba(255, 151, 54, 0.801);
+    padding: 20px;
+    border-radius: 5px;
+}
+
+.bar {
+    width: 25px;
+    height: 3px;
+    background-color: #1a1a1a;
+    margin: 4px 0;
+    transition: 0.4s;
+}
+
+/* 全螢幕遮罩層 */
+.overlay {
+    height: 100%;
+    width: 0; /* 預設寬度為 0 (隱藏) */
+    position: fixed;
+    z-index: 3000;
+    top: 0;
+    left: 0;
+    background-color: rgba(15, 15, 15, 0.9); /* 半透明背景 */
+    backdrop-filter: blur(8px); /* 背景模糊效果，很有質感 */
+    overflow-x: hidden;
+    transition: 0.5s; /* 展開速度 */
+}
+
+/* 選單內容容器 */
+.overlay-content {
+    position: relative;
+    top: 20%;
+    width: 100%;
+    text-align: center;
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 0 ;
+    
+}
+
+/* 選單按鈕樣式 */
+.overlay a {
+    padding: 15px;
+    text-decoration: none;
+    font-size: 36px;
+    color: #d6d6d6;
+    display: block;
+    transition: 0.3s;
+    font-weight: bold;
+    letter-spacing: 5px;
+    /* 關鍵屬性：強制不換行 */
+    white-space: nowrap; 
+
+}
+
+.overlay a:hover {
+    color: #ff7322;
+    transform: scale(1.1);
+}
+
+/* 關閉按鈕 */
+.overlay .closebtn {
+    position: absolute;
+    top: 20px;
+    right: 45px;
+    font-size: 60px;
+}
+        
+        .go-back {
+            line-height: 1;
+            display: inline-block;
+            align-items: center;
+            color: #d6d6d6;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            background-color: #2a2a2a;
+            padding: 11px 20px;
+            border-radius: 5px; /* 稍微方正一點更硬核 */
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        
+        .game {
+            font-family: 'Dela Gothic One';
+            src: url('/font/DelaGothicOne-Regular.ttf');
+            font-weight: normal;
+            position: absolute;
+            transform: translatex(-50%);
+            bottom: -70px;
+            letter-spacing: 1px;
+            white-space: nowrap;
+            color: #ffffff; text-decoration: none; 
+            font-size: 220%;
+            background-color: #3822ff;
+            font-weight: 950;
+            padding: 30px 80px;
+            border-radius: 0px;
+            z-index: 100;
+            box-shadow: 8px 8px 0px #141285;
+            filter: drop-shadow(5px 5px 10px #0f0f0f);
+            /* 根據最終形狀給陰影 */
+            will-change: filter;
+            animation: bounce 2s ease-in-out infinite alternate;
+        }
+        @keyframes bounce {
+    from { transform: translateX(-50%) translateY(0); }
+    to   { transform: translateX(-50%) translateY(-15px); }
+}
+        @media (max-width: 768px) {
+            .game {
+                font-size: 20px;
+                font-weight: 950;
+                -webkit-text-stroke: 0.5px #0f0f0f; /* 加上描邊 */
+                padding: 6% 13%;
+                bottom: -4%;
+                
+            }
+        }
+        
+        
+        body,html {
+        margin: 0; padding: 0%;overflow-x: hidden; scroll-behavior: smooth;
+        /* margin and padding讓網頁邊緣沒有留白,overflow讓內容超出時不需要左右滑卷軸,scroll-behavior出現點按鈕(超連結)時的跳轉過程 */
+        }
+        .page1.page2.page3.page4.page5.page6.page7.page8.page9{
+            /* -webkit-overflow-scrolling: touch; */
+          position: relative;
+          width: 100%;
+          overflow: visible; /* 關鍵：不要讓子頁面自己產生滾輪 */
+        }
+        
+        .page1 {
+
+            position: relative;
+            height: 1100px;
+            width: 100%;
+            background-color: #3d3d3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        @media (max-width: 768px) {
+            .page1 {
+                height: 750px;
+            }
+        }
+
+        #poster-character {
+    opacity: 0;
+    animation: slideDownFade 1.5s ease-out forwards;
+    /* 這裡可以確保動畫期間不要擋到滑鼠點擊 */
+    pointer-events: none; 
+}
+
+/* 當外層動畫播完後，恢復滑鼠功能 (動畫結束時間 1.5s) */
+@keyframes slideDownFade {
+    0% {
+        opacity: 30%;
+        transform: translateY(-100px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto; /* 結束後才可以 hover */
+    }
+}
+
+/* 2. 內層圖片負責「順滑縮放」 */
+#poster-character img {
+    width: 1100px;
+    /* 關鍵：transition 必須放在這裡，而不是 hover 裡 */
+    transition: transform 0.6s ease; 
+    /* 初始位移：如果你原本需要它稍微往上一點，寫在這裡 */
+    transform: translateY(-20px); 
+}
+
+/* 3. 內層圖片 Hover 狀態 */
+#poster-character img:hover {
+    transform: scale(1.05) translateY(-15px); 
+    cursor: pointer;
+}
+@keyframes slideupFade {
+    0% {
+        opacity: 0;
+        transform: translateY(50px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto; /* 結束後才可以 hover */
+    }
+}
+        #poster-background img {
+            width: 100%;
+            height: 100%;
+        }
+        #poster-rfr img {
+            width: 2000px;
+            animation: slideupFade 3s ease-out forwards;
+            opacity: 0;
+            
+        }
+        #poster-zz img {
+            width: 2000px;
+            animation: slideupFade 3s ease-out forwards;
+            opacity: 0;
+        }
+        .poster {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .page2 {
+            height: 1200px;
+            width: 100%;
+            background-color: #2a2a2a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            /* padding-top: 70px; */
+            /* 上方留白 */
+            color: white;
+            overflow: hidden;
+        }
+        .poster-2 img {
+            width: 2200px;
+        }
+        
+        .page3 {
+            height: 1500px;
+            width: 100%;
+            background-color: #3d3d3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        @media (max-width: 768px) {
+            .page3 {
+                height: 800px;
+            }
+        }
+        .page4 {
+            position: relative;
+            flex-direction: column;
+            height: 1200px;
+            width: 100%;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            overflow: hidden;
+        }
+        #星辰 img {
+            width: 500px;
+        }
+        #星辰 {
+            position:absolute;
+            margin-left: 100px;
+            width: 100%;
+            bottom: 0px;
+            left: -35px;
+        }
+        /* #星辰-name{
+            position: absolute;
+            font-size: 120px;
+            margin-bottom: 550px;
+            left: 610px;
+            white-space: nowrap;
+        } */
+        #星辰-intro{
+            padding: 80px 190px;
+            position: absolute;
+            font-size: 30px;
+            margin-bottom: 0px;
+            left: 610px;
+            white-space: nowrap;            
+        }
+        #好奇星 img, #同情星 img, #爽快星 img, #熱情星 img {
+            width: 400px;
+        }
+        
+        .intro-title {
+            position: absolute;
+            font-size: 100px;
+        }
+        
+
+/* 2. 當 JavaScript 幫我們加上 .show 時，執行現身動作 */
+        .character img, .intro-title, .intro {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: all 1.2s cubic-bezier(0.22, 1, 0.36, 1); /* 讓動畫更優雅 */
+}
+
+/* 觸發狀態：顯現 */
+.character img.show, .intro-title.show, .intro.show {
+    opacity: 1;
+    transform: translateY(0);
+    }
+        .page5 {
+            height: 800px;
+            width: 100%;
+            background-color: #3d3d3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .page6 {
+            height: 800px;
+            width: 100%;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .page7 {
+            height: 800px;
+            width: 100%;
+            background-color: #3d3d3d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        .page8 {
+            height: 800px;
+            width: 100%;
+            background-color: #2a2a2a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .page9 {
+    height: auto !important; /* 讓高度隨內容撐開，不要寫死 150px */
+    min-height: 400px;      /* 給予最小高度 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 50px 0;
+    background-color: #3d3d3d;
+    white-space: normal;    /* 容器本身允許正常排版 */
+}
+        #聯絡方式 {
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .IG-link img {
+    width: 50px !important;  /* 強制指定寬度 */
+    height: auto !important;
+    display: block;
+}
+        .gmail img {
+    width: 50px !important;  /* 強制指定寬度 */
+    height: auto !important;
+    display: block;
+}
+
+
+    </style>
+</head>
+
+        <!-- <div class="logo-box">
+            <div class="logo"><img src="/pct/logo.png" alt="logo"></div>
+            <span style="color: #ffffff; font-size: 21px; font-weight: bold; font-family: Arial, sans-serif;">zz</span>
+        </div> -->
+
+        <div class="menu-toggle" onclick="toggleMenu()">
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+        </div>
+        <div id="overlay-menu" class="overlay">
+            <a href="javascript:void(0)" class="closebtn" onclick="toggleMenu()">&times;</a>
+            <div class="overlay-content">
+            <a href="#page1" onclick="toggleMenu()">首頁</a>
+            <a href="/the game/game.html" onclick="togglemenu()">開始遊玩</a>
+            <a href="#page3"onclick="toggleMenu()">遊戲介紹</a>
+            <a href="#page4" onclick="toggleMenu()">角色介紹</a>
+            <!-- <a href="#page10" onclick="toggleMenu()">周邊商品</a>
+            <a href="#page11" onclick="toggleMenu()">插圖</a> -->
+            <a href="#page9" onclick="toggleMenu()">聯絡我們</a>
+        </div>
+</div>
+</div>
+
+
+    <div id="page1" class="page1">
+        <div class="game-start">
+        <a href="/the game/game.html" class="game" >開始遊玩</a>
+        <!-- <div class="標準字"><img src="/pct/標準字.PNG" alt="標準字"></div> -->
+        <div id="poster-background" class="poster"><img src="/pct/1.背景.png" alt="背景"></div> 
+        <div id="poster-rfr" class="poster"><img src="/pct/1.被子.png" alt="被子"></div>
+        <div id="poster-zz" class="poster"><img src="/pct/1.zz.png" alt="zz"></div>
+        <div id="poster-character" class="poster"><img src="/pct/1.星辰.png" alt="角色"></div>
+        </div>
+    </div>
+
+    <div id="page2" class="page2">
+    <div class="poster-2"><img src="/pct/海報(暫).PNG" alt="海報"></div>
+    </div>
+
+    <div id="page3" class="page3"></div>
+
+    <div id="page4" class="page4">
+        <div id="星辰" class="character"><img src="/pct/星辰.PNG"></div>
+                <span id="星辰-name" class="intro-title"  >星辰</span>
+                <span id="星辰-intro" class="intro"  font-family="Arial, sans-serif">介紹介紹介紹介紹介紹介紹介紹介紹介紹介紹介紹介紹介<br>紹介紹介紹介紹介紹介绍介绍介绍介绍介绍介绍介绍介绍介<br>紹介紹介紹介紹介紹介紹介紹介绍介绍介绍介绍介绍介绍介紹介绍</span>
+    </div>
+
+    <div id="page5" class="page5">
+        <div id="好奇星" class="character"><img src="/pct/好奇星.png"></div>
+                         <span id="好奇星-name" class="intro-title"  >好奇星</span>
+                         <span id="好奇星-intro" class="intro"  font-family="Arial, sans-serif"></span>
+    </div>
+
+    <div id="page6" class="page6">
+        <div id="同情星" class="character"><img src="/pct/同情星.png"></div>
+                        <span id="同情星-name" class="intro-title"  >同情星</span>
+                        <span id="同情星-intro" class="intro"  font-family="Arial, sans-serif"></span>
+    </div>
+
+    <div id="page7" class="page7">
+        <div id="爽快星" class="character"><img src="/pct/爽快星.PNG"></div>
+                        <span id="爽快星-name" class="intro-title"  >爽快星</span>
+                        <span id="爽快星-intro" class="intro"  font-family="Arial, sans-serif"></span>
+    </div>
+
+    <div id="page8" class="page8">
+        <div id="熱情星" class="character"><img src="/pct/熱情星.png"></div> 
+                        <span id="熱情星-name" class="intro-title" >熱情星</span>
+                        <span id="熱情星-intro" class="intro"  font-family="Arial, sans-serif"></span>
+    </div>
+
+    <div id="page9" class="page9">
+    <div id="聯絡方式">聯絡方式</div>
+
+    <a href="https://www.instagram.com/zz.zize/" class="IG-link" target="_blank">
+        <img src="/pct/IG.webp" alt="IG">
+    </a>
+    <a href="mailto:zzbiggggggg@gmail.com" class="gmail">
+        <img src="/pct/Gmail.png" alt="Gmail">
+    </a>
+
+
+    <div class="聯絡-text">
+        <p>Instagram: 星辰之路/zz.zize</p>
+        <p>電子郵件: zzbiggggggg@gmail.com</p>
+    </div>
+
+    <a href="#page1" class="go-back">返回首頁</a>
+
+    <div id="免責聲明">免責聲明:D 本遊戲純屬虛構，與任何現實人物、團體或事件無關。</div>
+</div>
+
+
+    <meta name="viewport" 
+    content="width=device-width, initial-scale=1.0">
+    <!-- 手機電腦視窗比例 -->
+
+
+</html>
