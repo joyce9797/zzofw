@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<head>
+    <title>《 星辰之路》——性格測驗視覺小說</title>
+</head>
+
+                   <!-- 載入畫面js -->
+<script>
+    // 禁止右鍵（防止圖片被另存）
+    document.addEventListener('contextmenu', event => event.preventDefault());
+                   // 載入畫面
+        // 1. 確保資源路徑正確 (檢查你的資料夾名稱)
+        // 要先載完的東西
+const criticalAssets = [
+    '/pct/星辰.PNG', 
+    '/pct/好奇星.PNG', 
+    '/pct/同情星.PNG'
+]; 
+const heavyAssets = []; // 暫時先空著
+
+let loadedCount = 0;
+const totalCritical = criticalAssets.length;
+
+function preloadImages(array, callback) {
+    if (array.length === 0) return callback(); // 如果沒東西就直接結束
+
+    array.forEach(src => {
+        const img = new Image();
+        img.src = src;
+        
+        // 成功載入
+        img.onload = () => {
+            loadedCount++;
+            let percent = Math.floor((loadedCount / totalCritical) * 60);
+            updateUI(percent);
+            if (loadedCount === totalCritical) callback();
+        };
+
+        // 失敗處理 (預防圖片路徑寫錯卡死)
+        img.onerror = () => {
+            console.error("圖片載入失敗:", src);
+            loadedCount++; // 即使失敗也算進去，否則進度條會卡死
+            if (loadedCount === totalCritical) callback();
+        };
+    });
+}
+
+function updateUI(p) {
+    const bar = document.getElementById('progress-bar');
+    const text = document.getElementById('loading-percent');
+    if (bar) bar.style.width = p + "%";
+    if (text) text.innerText = p + "%";
+}
+
+// 定義缺少的函式，避免報錯
+function enterGameAnimation() {
+    console.log("開始進入遊戲動畫");
+    // 讓 Loading 畫面消失
+    document.getElementById('loading-screen').style.opacity = '0';
+    setTimeout(() => {
+        document.getElementById('loading-screen').style.display = 'none';
+    }, 1000);
+}
+
+function backgroundLoad(assets) {
+    console.log("後台載入中...");
+}
+
+// 執行
+preloadImages(criticalAssets, () => {
+    enterGameAnimation();
+    backgroundLoad(heavyAssets);
+});
+    </script>
+
+
+
+
+
+
+
+
+               <!-- css -->
+ <!-- 載入畫面 -->
+<style>
+    * {
+    /* 1. 防止文字被選取（滑鼠上去不會變直線 I 字型） */
+    user-select: none;
+    -webkit-user-select: none; /* 支援 Chrome/Safari */
+    -moz-user-select: none;    /* 支援 Firefox */
+
+    /* 2. 防止圖片被拖拽（滑鼠拉不出來） */
+    -webkit-user-drag: none;
+}
+    /* 統一字體 */
+    body {
+        font-family: "Dela Gothic One", sans-serif;
+        line-height: 1.6;
+        margin: 0; padding: 0;
+        width: 100%; height: 100%;
+        /* overflow: hidden; */
+        justify-content: center; align-items: center;
+        display: flex;
+    }
+    img {
+        max-width: 100%;
+        display: block;
+    }
+    * {
+        box-sizing: border-box;
+    }
+    /* 東西不會過大跑出來 */
+    #loading-screen {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: #0f0f0f;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    transition: opacity 1s ease; /* 淡出動畫 */
+    z-index: 9999;
+}
+
+#progress-bar {
+    height: 10px;
+    background: #ff7322; /* 你的主題橘色 */
+    width: 0%; /* JS 會動態改這個 */
+    transition: width 0.3s;
+}
+
+
+
+
+/* 1. 修正主容器，確保所有東西垂直置中且不橫跨全螢幕 */
+#game-coutainer {
+    display: flex;
+    flex-direction: column;  /* 讓內部的 div 一個接一個往下排 */
+    align-items: center;     /* 水平置中 */
+    justify-content: center; /* 垂直置中 */
+    width: 100%;
+    height: 100%;
+}
+
+/* 2. 修正輸入名字的橘色框框 */
+.askname-item {
+    background-color: #ff7322;
+    color: rgb(32, 32, 32);
+    font-weight: bold;
+    font-size: 16px;
+    padding: 25px;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;  /* 讓標題、輸入框、按鈕垂直排列 */
+    align-items: center;
+    gap: 20px;
+    width: fit-content;      /* 重要：讓框框寬度隨內容縮放，不再到邊邊 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* 加一點陰影更有立體感 */
+}
+
+/* 3. 讓輸入框和按鈕分開成不同行 */
+.input-wrapper {
+    display: flex;
+    flex-direction: column;  /* 讓輸入框和按鈕上下排 */
+    align-items: center;
+    gap: 15px;               /* 兩者之間的間距 */
+    width: 100%;
+}
+
+/* 修正輸入框寬度，確保不會被擠壓 */
+#name-input {
+    padding: 10px 15px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    width: 250px;            /* 設定一個適合的寬度 */
+    text-align: center;      /* 讓打字也置中 */
+}
+#submit-name {
+    padding: 10px 30px;
+    font-size: 18px;
+    color: #fff;
+    background-color: #333;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease; /* 平滑過渡 */
+}
+#submit-name:hover {
+    transform: scale(1.05) translateY(1px); /* 碰到時微放大 */
+}
+    
+    /* .漫畫格 {
+        transition: opacity 0.8s ease, transform 1.2s ease;
+    } */
+.character-item {
+    background-color: #555555;
+    color: rgb(255, 255, 255);
+    font-weight: bold;
+    font-size: 24px;       /* 稍微調小一點點，不然五個併排可能會超出螢幕 */
+    
+    /* 修正 Padding：第一個是上下，第二個是左右 */
+    padding: 20px 30px;    
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* 注意：如果你用了 padding 又設定固定 width，
+       記得確保 box-sizing: border-box 有開啟 */
+    width: 160px; 
+    
+    white-space: nowrap;   /* 確保文字本身也不會換行 */
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+}
+.character-name-box {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;     /* 強制不換行 */
+    justify-content: center;
+    gap: 15px;             /* 星球名字之間的距離 */
+    margin-top: 20px;      /* 跟上方圖片的距離 */
+    z-index: 100;
+}
+
+</style>
+
+
+                 <!-- html -->
+<body>
+                 <!-- 資源預載 -->
+     <div id="loading-screen">
+    <div class="loading-title">正在連結星辰...</div>
+    <div class="progress-container">
+        <img src="/pct/loading.gif" alt="Loading..." style="width: 50px; height: 50px; margin-right: 10px;">
+        <div id="progress-bar"></div>
+    </div>
+    <div id="loading-percent">0%</div>
+</div>
+                 <!-- basic基本 -->
+<div id="game-coutainer">
+    <div id="page" class="page"></div>
+      <div id="askname-item" class="askname-item">
+        <div id="askname-title" class="askname-title">你叫什麼名字？</div>
+        <div class="input-wrapper">
+          <input type="text" id="name-input" placeholder="請輸入你的名字" autocomplete="off">
+          <button id="submit-name">確定</button>
+        </div>
+      </div>
+        <div id="gamername" class="gamername"></div>
+        <div id="character" classs  ="character">
+            <div id="星辰" class="character-art" img src><img src="/pct/星辰.PNG"></div>
+            <div id="好奇星" class="character-art"><img src="/pct/好奇星.PNG"></div>
+            <div id="同情星" class="character-art"><img src="/pct/同情星.PNG"></div>   
+            <div id="爽快星" class="character-art"><img src="/pct/爽快星.PNG"></div>
+            <div id="熱情星" class="character-art"><img src="/pct/熱情星.PNG"></div>
+        </div>
+        <div id="character-name-box" class="character-name-box">
+            <div id="好奇星" class="character-item">好奇星</div>
+            <div id="同情星" class="character-item">同情星</div>
+            <div id="爽快星" class="character-item">爽快星</div>
+            <div id="熱情星" class="character-item">熱情星</div>
+        </div>
+        <div id="options" class="options">
+        <div id="op1" class="op1"></div>
+        <div id="op2" class="op2"></div>
+        <div id="op3" class="op3"></div>
+        <div id="op4" class="op4"></div>
+    </div>
+    <div id="cvstbox" class="cvstbox"></div>
+    <div id="speech-bubble" class="speech"></div>
+    <div id="imagine=speech-bubble" class="speech"></div>
+                 <!-- prop道具 -->
+
+                 <!-- result結果 -->
+
+                 <!-- end -->
+</div>
+</body>
+</html>
