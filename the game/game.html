@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<!-- 遊戲開始前:點擊畫面進行對話(標示)，選單可開啟自動劇情、調整音量與查看對話紀錄 -->
+ <!-- 黑幕 上面有好奇星在跳和跑內容，結束後跳上面這個。劇情漸入 -->
 <head>
     <title>《 星辰之路》——性格測驗視覺小說</title>
 </head>
@@ -11,12 +12,30 @@
     // 禁止右鍵（防止圖片被另存）
     document.addEventListener('contextmenu', event => event.preventDefault());
                    // 載入畫面
+                   const minimumDelay = new Promise(resolve => setTimeout(resolve, 5000));
+
+// 2. 模擬或實際的資源預載入 Promise
+const preloadResources = new Promise((resolve) => {
+    // 這裡放你原本的資源載入代碼...
+    // 當所有圖片/音效載入完成後，呼叫 resolve()
+    console.log("資源載入完成！");
+    resolve();
+});
+
+// 3. 兩者都完成才進入下一步
+Promise.all([minimumDelay, preloadResources]).then(() => {
+    console.log("已滿三秒，且資源載入完畢！");
+    goToPreviewScreen(); // 切換到預告畫面
+});
         // 1. 確保資源路徑正確 (檢查你的資料夾名稱)
         // 要先載完的東西
+        
 const criticalAssets = [
-    '/pct/星辰.PNG', 
-    '/pct/好奇星.PNG', 
-    '/pct/同情星.PNG'
+    '/pct/星辰.png', 
+    '/pct/好奇星.png', 
+    '/pct/同情星.png',
+    '/pct/爽快星.png',
+    '/pct/熱情星.png',
 ]; 
 const heavyAssets = []; // 暫時先空著
 
@@ -68,11 +87,341 @@ function backgroundLoad(assets) {
     console.log("後台載入中...");
 }
 
-// 執行
 preloadImages(criticalAssets, () => {
     enterGameAnimation();
     backgroundLoad(heavyAssets);
 });
+// 載入
+// 切換選單開關
+function toggleMenu() {
+    const drawer = document.getElementById('menu-drawer');
+    const overlay = document.getElementById('menu-overlay');
+    drawer.classList.toggle('open');
+    overlay.classList.toggle('show');
+}
+
+// 1. 自動播放劇情
+let autoPlayInterval;
+function startAutoStory() {
+    console.log("開始自動劇情...");
+    toggleMenu(); // 關閉選單
+    // 這裡放入你原本推進劇情的函式，例如：
+    // autoPlayInterval = setInterval(nextDialogue, 3000); 
+}
+
+// 2. 對話回顧 (簡單範例：彈出視窗)
+function showHistory() {
+    // 假設你有一個陣列存著歷史對話
+    alert("顯示歷史對話紀錄...");
+    toggleMenu();
+}
+
+// 3. 回到上個對話
+function prevDialogue() {
+    console.log("倒退回上一步");
+    // 這裡需要操作你的對話索引 (index--) 並重新渲染文字
+    toggleMenu();
+}
+
+// 4. 音效開關
+// 自動播放按鈕
+function closeAuto(element) {
+    // 切換 active 類名，觸發 CSS 變色
+    element.classList.toggle('active');
+    
+    const isAuto = element.classList.contains('active');
+    if (isAuto) {
+        console.log("自動劇情：啟動");
+        // 這裡放啟動自動播放的程式碼
+    } else {
+        console.log("自動劇情：停止");
+        // 這裡放停止自動播放的程式碼
+    }
+}
+
+// 對話紀錄按鈕
+function showLog(element) {
+    // 如果你希望紀錄按鈕點了變色，關閉視窗後才變回來
+    // 或者單純點一下變色表示「正在看紀錄」
+    element.classList.toggle('active');
+    // alert("顯示歷史對話紀錄...");
+    
+    // element.classList.remove('active');
+}
+
+// 音效按鈕 (維持原樣)
+function toggleAudio(element) {
+    element.classList.toggle('active');
+    const isSoundOn = element.classList.contains('active');
+    console.log(isSoundOn ? "音效：開啟" : "音效：關閉");
+}
+let isSoundOn = true;
+
+function toggleAudio(element) {
+    // 1. 切換開關狀態
+    isSoundOn = !isSoundOn;
+    
+    // 2. 切換 CSS 類名 (這行負責變色)
+    // 它會在 class 裡面加上 "active"，CSS 就會抓到 .nav-item.active
+    element.classList.toggle('active');
+    
+    // 3. 實際功能執行
+    if (isSoundOn) {
+        console.log("音效：開啟");
+        // 如果你有 bgm 變數：bgm.muted = false;
+    } else {
+        console.log("音效：關閉");
+        // 如果你有 bgm 變數：bgm.muted = true;
+    }
+}
+
+function toggleMenu(event) {
+    // 如果有傳入點擊事件，阻止它往外傳播（防止觸發 nextStep）
+    if (event) {
+        event.stopPropagation();
+    }
+
+    const wrapper = document.getElementById('menu-items-wrapper');
+    const burger = document.getElementById('burger-menu');
+    
+    if (wrapper && burger) {
+        wrapper.classList.toggle('open');
+        burger.classList.toggle('active');
+    }
+}
+function startAuto(element) {
+    element.classList.toggle('active');
+    const isAuto = element.classList.contains('active');
+    
+    if (isAuto) {
+        console.log("自動劇情：啟動");
+        // 執行自動播放的程式碼...
+    } else {
+        console.log("自動劇情：停止");
+        // 停止自動播放...
+    }
+}
+
+// 漢堡選單
+// 選項
+function showOptions(options) {
+    const container = document.getElementById('選項框');
+    container.innerHTML = ""; // 1. 先清空上一次的選項
+    container.style.display = 'flex'; // 2. 顯示大框框
+
+    // 3. 根據資料裡的 options 有幾個，就生幾個按鈕
+    options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.innerText = opt.text; // 設定按鈕文字
+        btn.className = 'option-btn'; // 套用上面寫好的 CSS
+        
+        btn.onclick = (e) => {
+            e.stopPropagation(); // 防止點到背景
+            
+            // 跳轉劇情
+            currentStep = storyScript.findIndex(s => s.id === opt.nextId);
+            container.style.display = 'none'; // 選完就關閉框框
+            renderScene(currentStep); 
+        };
+        
+        container.appendChild(btn); // 把按鈕塞進大框框
+    });
+}
+
+
+
+
+
+
+let currentStep = 0; // 紀錄目前進行到哪一個劇情節點
+
+// 1. 初始化遊戲
+function startGame() {
+    renderScene(currentStep);
+}
+
+// 2. 渲染場景的函式 (最重要！)
+function renderScene(stepIndex) {
+    const scene = storyScript[stepIndex];
+    if (!scene) return;
+
+    // 1. 更新對話文字與名字
+    document.getElementById('對話文本').innerText = scene.text || "";
+    document.getElementById('玩家').innerText = scene.speaker || "星辰";
+
+    // 2. 先把所有人藏起來
+    hideAllCharacters();
+
+    // 3. 根據這一關的腳本，把需要的角色「秀出來」
+    if (scene.characters) {
+        scene.characters.forEach(charName => {
+            const charImg = document.getElementById(charName);
+            if (charImg) charImg.style.display = 'block'; 
+        });
+    }
+
+    // 4. 角色秀出來之後，立刻執行對應的動畫
+    if ([0].includes(scene.id)) { 
+        starSlideIn();
+    } else if ([1.5].includes(scene.id)) { 
+        starGetScared();
+    }
+
+    // 5. ✨ 補回這段：處理選項顯示與渲染 ✨
+    const optBox = document.getElementById('選項框');
+    if (!optBox) return; // 安全機制，防止找不到元件
+
+    if (scene.options) {
+        optBox.innerHTML = "";      // 先清空上一次的按鈕
+        optBox.style.display = 'flex'; // 顯示選項框
+        
+        scene.options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt.text;
+            btn.className = 'option-btn';
+            
+            // 點擊選項時的邏輯
+            btn.onclick = (e) => {
+                e.stopPropagation(); // 防止點擊按鈕觸發到背景的 nextStep()
+                
+                // 根據選項的 nextId 找到劇本中對應的陣列索引
+                currentStep = storyScript.findIndex(s => s.id === opt.nextId);
+                optBox.style.display = 'none'; // 隱藏選項
+                renderScene(currentStep);      // 前進下一幕
+            };
+            optBox.appendChild(btn);
+        });
+    } else {
+        optBox.style.display = 'none'; // 如果這一關沒有選項，就把框藏起來
+    }
+}
+
+// 3. 點擊畫面推進劇情
+// 在 HTML 的 #page1 或 body 加一個 onclick="nextStep()"
+function nextStep() {
+    // 如果現在有選項，就強制玩家必須選一個，不能直接點過
+    const scene = storyScript[currentStep];
+    if (scene.options) return;
+
+    if (scene.nextId !== undefined) {
+        // 如果有指定下一個 ID
+        currentStep = storyScript.findIndex(s => s.id === scene.nextId);
+    } else {
+        // 否則就順著走下一個
+        currentStep++;
+    }
+
+    if (currentStep < storyScript.length) {
+        renderScene(currentStep);
+    } else {
+        alert("劇情結束！");
+    }
+}
+
+// 輔助函式：隱藏所有角色圖
+function hideAllCharacters() {
+    const chars = ["星辰","星辰害怕", "好奇星", "同情星", "爽快星", "熱情星"];
+    chars.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
+}
+
+// 執行遊戲
+window.onload = startGame;
+
+
+
+const storyScript = [
+    {
+        id: 0,
+        text: "呃...怎麼回事，頭好暈。",
+        speaker: "星辰",
+        background: "好奇星叢林",
+        characters: ["星辰"],  
+      
+    },
+    {
+        id: 1.5,
+        text: "蛤？這裡是哪裡。",
+        characters: ["星辰害怕"],  
+    },
+    {
+        id: 2,
+        text: "現在該怎麼辦？",
+ 
+        options: [
+            { 
+                text: "到處走走看", 
+                nextId: 2, 
+                score: { "好奇星": 3 },
+                feedback: "" 
+            },
+            { 
+                text: "呼喊一下", 
+                nextId: 2,  
+                score: { "好奇星": 2 },
+                feedback: "呀厚！有人嗎？沒人嗎？" 
+            },
+            { 
+                text: "原地等等吧", 
+                nextId: 2, 
+                score: { "好奇星": 1 },
+                feedback: "原地等等吧，說不定會有人來救我呢。" 
+            },
+            { 
+                text: "好麻煩好想離開", 
+                nextId: 2, 
+                score: { "好奇星": 0 },
+                feedback: "好想回家啊..." 
+            }
+        ] // options 在這裡結束
+    }, 
+    {
+        id: 2, // 獨立出來，不要塞在 options 裡面
+        text: "什麼聲音？",
+        speaker: "星辰害怕",
+        characters: ["星辰害怕"],  
+    },
+    // {
+    //     id:"a"
+        
+    // },
+    {
+        id: 3,
+        type: "漫畫", // 標記這一關是漫畫模式
+        text: "哇哇哇啊啊！",
+        speaker: "旁白",
+        comicImages: ["/pct/comic-1.jpg", "/pct/comic-2.jpg"], // 漫畫分鏡圖
+        nextId: 4
+    }
+];
+
+
+// 讓星辰從右邊滑進來
+function starSlideIn() {
+    const star = document.getElementById('星辰');
+    if (star) {
+        star.style.display = 'block';        /* ✨ 先讓它在舞台上出現 */
+        star.classList.remove('slide-in-right'); 
+        void star.offsetWidth;               /* 🔥 強迫瀏覽器刷新 */
+        star.classList.add('slide-in-right');    
+    }
+}
+
+function starGetScared() {
+    const starScared = document.getElementById('星辰害怕');
+    if (starScared) {
+        starScared.style.display = 'block';  /* ✨ 先讓它在舞台上出現 */
+        starScared.classList.remove('scared-bounce'); 
+        void starScared.offsetWidth;         /* 🔥 強迫瀏覽器刷新 */
+        starScared.classList.add('scared-bounce');    
+        
+        starScared.addEventListener('animationend', () => {
+            starScared.classList.remove('scared-bounce');
+        }, { once: true });
+    }
+}
     </script>
 
 
@@ -83,7 +432,6 @@ preloadImages(criticalAssets, () => {
 
 
                <!-- css -->
- <!-- 載入畫面 -->
 <style>
     * {
     /* 1. 防止文字被選取（滑鼠上去不會變直線 I 字型） */
@@ -96,14 +444,14 @@ preloadImages(criticalAssets, () => {
 }
     /* 統一字體 */
     body {
-        font-family: "Dela Gothic One", sans-serif;
+        /* font-family: "Dela Gothic One", sans-serif; */
         line-height: 1.6;
         margin: 0; padding: 0;
         width: 100%; height: 100%;
         /* overflow: hidden; */
         justify-content: center; align-items: center;
         display: flex;
-    }
+    }s
     img {
         max-width: 100%;
         display: block;
@@ -120,111 +468,362 @@ preloadImages(criticalAssets, () => {
     display: flex; flex-direction: column;
     justify-content: center; align-items: center;
     transition: opacity 1s ease; /* 淡出動畫 */
-    z-index: 9999;
+    z-index: 999;
 }
 
 #progress-bar {
     height: 10px;
-    background: #ff7322; /* 你的主題橘色 */
+    background: #62c6ff; /* 你的主題橘色 */
     width: 0%; /* JS 會動態改這個 */
     transition: width 0.3s;
 }
+/* 載入畫面 */
 
+#對話內容{
+    white-space: pre-line; 
+    /* font-family: "", sans-serif;  */
+    font-size: 20px;
+    color: white;
+}
+#page1 {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex; justify-content: center; align-items: center;
+    z-index: 100000;
+}
 
-
-
-/* 1. 修正主容器，確保所有東西垂直置中且不橫跨全螢幕 */
-#game-coutainer {
+html, body {
+    margin: 0;
+    padding: 0;
     display: flex;
-    flex-direction: column;  /* 讓內部的 div 一個接一個往下排 */
-    align-items: center;     /* 水平置中 */
-    justify-content: center; /* 垂直置中 */
+    justify-content: center;
+    align-items: center;
+    background-color: #000;
+    overflow: hidden !important;
+    height: 100% !important;
+    width: 100% !important;
+    position: relative;
+    touch-action: none;
+}
+
+
+#玩家名稱 {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100%;
     height: 100%;
 }
 
-/* 2. 修正輸入名字的橘色框框 */
-.askname-item {
-    background-color: #ff7322;
-    color: rgb(32, 32, 32);
-    font-weight: bold;
-    font-size: 16px;
-    padding: 25px;
-    border-radius: 15px;
-    display: flex;
-    flex-direction: column;  /* 讓標題、輸入框、按鈕垂直排列 */
-    align-items: center;
-    gap: 20px;
-    width: fit-content;      /* 重要：讓框框寬度隨內容縮放，不再到邊邊 */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3); /* 加一點陰影更有立體感 */
-}
 
-/* 3. 讓輸入框和按鈕分開成不同行 */
-.input-wrapper {
-    display: flex;
-    flex-direction: column;  /* 讓輸入框和按鈕上下排 */
-    align-items: center;
-    gap: 15px;               /* 兩者之間的間距 */
+#好奇星 img {
+    width: 500px;
+    transform: scaleX(-1) translateX(480px) translateY(-150px);
+    /* display: none; */
+}
+#爽快星 img {
+    width: 560px;
+    transform: scaleX(-1) translateX(500px) translateY(-140px);
+    /* display: none; */
+
+}
+#同情星 img {
+    width: 500px;
+    transform: scaleX(-1) translateX(480px) translateY(-110px);
+    /* display: none; */
+}
+#熱情星 img {
+    width: 520px;
+    transform: scaleX(-1) translateX(480px) translateY(-120px);
+    /* display: none; */
+
+}
+/* 改為控制外層 div 的寬度，並讓裡面的圖片自動填滿 */
+#星辰, #星辰害怕 {
+    width: 900px;
+}
+#星辰 img, #星辰害怕 img {
     width: 100%;
+    height: auto;
 }
 
-/* 修正輸入框寬度，確保不會被擠壓 */
-#name-input {
-    padding: 10px 15px;
-    font-size: 18px;
-    border: none;
-    border-radius: 8px;
-    width: 250px;            /* 設定一個適合的寬度 */
-    text-align: center;      /* 讓打字也置中 */
+/* 找到這段並修改 */
+.全星辰 {
+    z-index: 5;
+    position: absolute;
+    right: 90px;
+    bottom: -190px;      
+    transition: all 0.5s ease;
+    display: none;  /* ✨ 改回預設隱藏 */
 }
-#submit-name {
-    padding: 10px 30px;
-    font-size: 18px;
-    color: #fff;
-    background-color: #333;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease; /* 平滑過渡 */
+
+/* 漸層滑入動畫 Class */
+.slide-in-right {
+    animation: slideInFromRight 1s ease-out forwards;
 }
-#submit-name:hover {
-    transform: scale(1.05) translateY(1px); /* 碰到時微放大 */
+
+/* 定義動畫軌跡 */
+@keyframes slideInFromRight {
+    0% {
+        transform: translateX(100px); /* 從原本位置再往右 100px */
+        opacity: 0;                   /* 完全透明 */
+    }
+    100% {
+        transform: translateX(0);     /* 回到 CSS 原本設定的位置 */
+        opacity: 1;                   /* 完全顯示 */
+    }
 }
+/* 嚇到跳一下動畫 Class */
+.scared-bounce {
+    animation: scareJump 0.5s ease-out;
+}
+
+/* 定義嚇到的彈跳動作 */
+@keyframes scareJump {
+    0% {
+        transform: translateY(0) scale(1);
+    }
+    20% {
+        /* 瞬間往上跳，並因為慣性稍微拉長身形 */
+        transform: translateY(-50px) scale(0.95, 1.05); 
+    }
+    40% {
+        /* 掉回地面，並因為衝擊力稍微壓扁 */
+        transform: translateY(0) scale(1.05, 0.95);
+    }
+    60% {
+        /* 稍微再彈起一點點 */
+        transform: translateY(-10px) scale(0.98, 1.02);
+    }
+    100% {
+        /* 恢復正常狀態 */
+        transform: translateY(0) scale(1);
+    }
+}
+.星球 {
+    position: absolute;
+    bottom: 0;      /* 靠底部對齊 */
+    transition: all 0.5s ease;    
+    /* display: none;   */
+}
+.角色圖 {
+    z-index: 10; /* 確保角色圖在對話框上面 */
+}
+
+#好奇星叢林 img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+#好奇星叢林 {
+    position: absolute;
+    top: 0px; left: 0;
+    width: 100%; height: 100%;
+    z-index: 1; /* 確保背景在最下面 */
+}
+
+#對話框 {
+    position: absolute;
+    bottom: 0px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 250px;
+    z-index: 999;
+    pointer-events: none;
+}
+
+.dialog-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     
-    /* .漫畫格 {
-        transition: opacity 0.8s ease, transform 1.2s ease;
-    } */
-.character-item {
-    background-color: #555555;
-    color: rgb(255, 255, 255);
+    /* 背景顏色與漸層 */
+    background: linear-gradient(to bottom,  #2e2e2e 0%,#2e2e2e 60%, rgba(0, 0, 0, 0) 999%);
+    /* background-color: rgba(36, 36, 36, 0.92);     */
+    /* 只在這裡切角*/
+    clip-path: polygon(0% 0%, 100% 10%, 100% 100%, 0% 100%);
+    
+    z-index: 1; 
+}
+
+#名字框 {
+    position: absolute; /* 改用 absolute 方便精確定位 */
+    z-index: 1000; 
+    /* 這裡控制名字的位置，y 軸負值讓它飄上去 */
+    transform: translateX(100px) translateY(-50px);
+}
+
+#玩家 {
+    font-size: 80px;
     font-weight: bold;
-    font-size: 24px;       /* 稍微調小一點點，不然五個併排可能會超出螢幕 */
-    
-    /* 修正 Padding：第一個是上下，第二個是左右 */
-    padding: 20px 30px;    
-    border-radius: 15px;
+    color: #ffa033;
+    /* 套用你之前的 SVG 濾鏡 */
+    filter: url(#round-outline);
+}
+
+#對話文本 {
+    position: relative;
+    z-index: 10;
+    transform: translateY(-30px);
+    padding-left: 700px;
+    color: white;
+    font-size: 40px;
+}
+
+#選項框 {
+    width: 600px;
+    height: 550px;
+    position: absolute;
+    bottom: 350px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 500;
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    
+    /* --- 遮罩核心修正 --- */
+}
+
+
+.option-btn {
+    width: 120%;
+    padding: 30px;
+    /* 載入你的背景圖片 */
+    background-image: url('/pct/選項框單.PNG');
+    background-size: 100% 100%; /* 讓圖片延展填滿整個按鈕，若怕變形可改為 contain */
+    background-repeat: no-repeat;
+    background-position: center;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 40px;
+    transition: 0.2s;
+    position: relative; 
+    z-index: 1000;
+
+    
+}
+
+.option-btn:hover {
+    transform: scale(1.05); /* 放大 */
+}
+
+
+
+
+/* 漢堡按鈕樣式 */
+.menu-container {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    display: flex;
+    align-items: center;
+    z-index: 200000;
+}
+
+/* 漢堡按鈕樣式 */
+#burger-menu img {
+    width: 80px;
+    height: auto; /* 確保圖片等比例縮放 */
+}
+
+#burger-menu {
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+    
+    /* ======== ✨ 核心修改：絕對定位 ✨ ======== */
+    position: absolute; 
+    top: 10px;         /* 📍 距離遊戲畫面頂端多遠 (可以自己改數字) */
+    left: 20px;       /* 📍 距離遊戲畫面右邊多遠 (可以自己改數字) */
+    z-index: 999;      /* 確保按鈕永遠疊在最上層，不會被對話框或角色擋住 */
+
+    /* ======== ✨ 讓裡面的圖片完美居中 ✨ ======== */
+    display: flex;
+    align-items: center;      /* 上下置中 */
+    justify-content: center;  /* 左右置中 */
+    
+    /* ======== 你的樣式設定 ======== */
+    background-color: rgba(0, 0, 0, 0.5); 
+    border-radius: 20px; 
+    transition: transform 0.2s ease;
+}
+
+#burger-menu span {
+    display: none;
+}
+
+/* 選項容器 */
+#menu-items-wrapper {
+    display: flex;
+    gap: 15px;
+    overflow: hidden;
+    max-width: 0; /* 初始寬度為 0 */
+    transition: max-width 0.5s ease-in-out;
+    white-space: nowrap;
+}
+
+/* 開啟狀態：讓容器寬度撐開 */
+#menu-items-wrapper.open {
+    max-width: 800px; /* 設一個夠大的寬度 */
+}
+
+/* 選項樣式 */
+.nav-item {
+    background: #2b2b2b; /* 跟你對話框最上方一致的顏色 */
+    color: white;
+    padding: 30px 30px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.2s ease;
+    border: 3px solid #2e2e2e;
+}
+
+/* 當容器開啟時，選項逐個浮現 */
+#menu-items-wrapper.open .nav-item {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* 這裡做「一個個出現」的延遲效果 */
+#menu-items-wrapper.open .nav-item:nth-child(1) { transition-delay: 0.1s; }
+#menu-items-wrapper.open .nav-item:nth-child(2) { transition-delay: 0.2s; }
+#menu-items-wrapper.open .nav-item:nth-child(3) { transition-delay: 0.3s; }
+#menu-items-wrapper.open .nav-item:nth-child(4) { transition-delay: 0.4s; }
+
+/* .nav-item:hover {
+    background: #ffa033;
+    color: #2e2e2e;
+} */
+.nav-item.active{
+    background-color: #ffa033 !important;
+}
+.nav-item img {
+    width: 24px;   /* 根據你的需求調整大小 */
+    height: 24px;  /* 保持正方形 */
+    object-fit: contain; /* 確保圖片不變形 */
+    display: block;      /* 消除圖片下方的微小間隙 */
+}
+
+.nav-item {
+    display: flex;       /* 使用 Flex 讓圖片在框框內置中 */
     justify-content: center;
     align-items: center;
-    
-    /* 注意：如果你用了 padding 又設定固定 width，
-       記得確保 box-sizing: border-box 有開啟 */
-    width: 160px; 
-    
-    white-space: nowrap;   /* 確保文字本身也不會換行 */
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
+    min-width: 50px;     /* 給一個最小寬度，確保沒字時也是圓形或方形 */
+    height: 50px;        /* 固定高度 */
+    padding: 0 10px;     /* 減少左右內距，因為現在有圖片了 */
 }
-.character-name-box {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;     /* 強制不換行 */
-    justify-content: center;
-    gap: 15px;             /* 星球名字之間的距離 */
-    margin-top: 20px;      /* 跟上方圖片的距離 */
-    z-index: 100;
-}
-
 </style>
 
 
@@ -232,16 +831,40 @@ preloadImages(criticalAssets, () => {
 <body>
                  <!-- 資源預載 -->
      <div id="loading-screen">
-    <div class="loading-title">正在連結星辰...</div>
+    <div class="loading-title">正在連結...</div>
     <div class="progress-container">
-        <img src="/pct/loading.gif" alt="Loading..." style="width: 50px; height: 50px; margin-right: 10px;">
+        <img src="/pct/跳跳跳.gif" alt="Loading..." style="width: 50px; height: 50px; margin-right: 10px;">
         <div id="progress-bar"></div>
     </div>
     <div id="loading-percent">0%</div>
 </div>
-                 <!-- basic基本 -->
-<div id="game-coutainer">
-    <div id="page" class="page"></div>
+                 <!-- 基本 -->
+        <div id="page1" class="page" onclick="nextStep()">
+    <div id="星辰" class="全星辰"><img src="/pct/星辰沒邊.png"></div>
+    <div id="星辰害怕" class="全星辰"><img src="/pct/星辰害怕_哭泣😢🫱🫲.png"></div>
+    <div id="好奇星" class="角色圖" class="星球"><img src="/pct/好奇星.PNG"></div>
+    <div id="同情星" class="角色圖" class="星球"><img src="/pct/同情星.PNG"></div>   
+    <div id="爽快星" class="角色圖" class="星球"><img src="/pct/爽快星.png"></div>
+    <div id="熱情星" class="角色圖" class="星球"><img src="/pct/熱情星.png"></div>
+    
+    <div id="對話框">
+        <div class="dialog-bg"></div> 
+        <div id="名字框"></div>
+        <div id="玩家">星辰</div> 
+        <div id="對話文本">這裡放你的對話文字...</div>
+    </div>
+    
+    <div id="漫畫框" class="框框"></div>
+    <div id="背景" class="框框"></div>
+
+    <div id="選項框" style="display: none;"></div>
+</div>
+    
+    <div id="好奇星叢林" class="背景"><img src="/pct/好奇星叢林.png"></div>
+
+           
+<!-- <div id="玩家名稱">
+    <div id="問名字" class="框框"></div>
       <div id="askname-item" class="askname-item">
         <div id="askname-title" class="askname-title">你叫什麼名字？</div>
         <div class="input-wrapper">
@@ -249,34 +872,64 @@ preloadImages(criticalAssets, () => {
           <button id="submit-name">確定</button>
         </div>
       </div>
-        <div id="gamername" class="gamername"></div>
-        <div id="character" classs  ="character">
-            <div id="星辰" class="character-art" img src><img src="/pct/星辰.PNG"></div>
-            <div id="好奇星" class="character-art"><img src="/pct/好奇星.PNG"></div>
-            <div id="同情星" class="character-art"><img src="/pct/同情星.PNG"></div>   
-            <div id="爽快星" class="character-art"><img src="/pct/爽快星.PNG"></div>
-            <div id="熱情星" class="character-art"><img src="/pct/熱情星.PNG"></div>
-        </div>
-        <div id="character-name-box" class="character-name-box">
+        <div id="gamername" ></div> -->
+
+        <!-- <div id="character-name-box" class="character-name-box">
             <div id="好奇星" class="character-item">好奇星</div>
             <div id="同情星" class="character-item">同情星</div>
             <div id="爽快星" class="character-item">爽快星</div>
             <div id="熱情星" class="character-item">熱情星</div>
-        </div>
-        <div id="options" class="options">
-        <div id="op1" class="op1"></div>
-        <div id="op2" class="op2"></div>
-        <div id="op3" class="op3"></div>
-        <div id="op4" class="op4"></div>
-    </div>
-    <div id="cvstbox" class="cvstbox"></div>
-    <div id="speech-bubble" class="speech"></div>
-    <div id="imagine=speech-bubble" class="speech"></div>
-                 <!-- prop道具 -->
+        </div> -->
+        <svg style="position: absolute; width: 0; height: 0;">
+  <filter id="round-outline">
+    <feMorphology operator="dilate" radius="15" in="SourceAlpha" result="thicken" />
+    <feFlood flood-color="#2e2e2e" result="color" />
+    <feComposite in="color" in2="thicken" operator="in" result="outline" />
+    <feMerge>
+      <feMergeNode in="outline" />
+      <feMergeNode in="SourceGraphic" />
+    </feMerge>
+  </filter>
+</svg>
 
-                 <!-- result結果 -->
+                 <!-- 道具 -->
+
+                 <!-- 結果 -->
 
                  <!-- end -->
+                  <!-- 漢堡選單 -->
+                   <!-- 漢堡按鈕 -->
+<div class="menu-container">
+    <!-- 漢堡按鈕 -->
+    <!-- <div id="burger-menu" onclick="toggleMenu(event)">
+        <img src="" alt="Menu">
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
+    <div id="menu-items-wrapper">
+        <div class="nav-item" onclick="closeAuto(this)"><img src="/pct/2快轉.png" alt="自動"></div>
+        <div class="nav-item" onclick="showLog(this)"><img src="/pct/2紀錄.png" alt="紀錄"></div>
+        <div class="nav-item" onclick="toggleAudio(this)"><img src="/pct/2音量.png" alt="音效"></div>
+    </div>
+</div> -->
+
+
+<div class="menu-wrapper">
+
+    <div id="burger-menu" onclick="toggleMenu(event)">
+        <img src="/pct/2選單.png" alt="menu">
+    </div>
+
+    <div id="menu-content">
+        <div class="nav-item" onclick="closeAuto(this)"><img src="/pct/2快轉.png" alt="自動"></div>
+        <div class="nav-item" onclick="showLog(this)"><img src="/pct/2紀錄.png" alt="紀錄"></div>
+        <div class="nav-item" onclick="toggleAudio(this)"><img src="/pct/2音量.png" alt="音效"></div>
+    </div>
+
+</div>
+
 </div>
 </body>
 </html>
